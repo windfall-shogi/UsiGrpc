@@ -24,6 +24,9 @@
     <ClCompile Include="usi.pb.cc">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="usi.grpc.pb.h">
