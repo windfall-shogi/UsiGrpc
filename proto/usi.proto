@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+package usi;
+
+// 起動直後にGUIへ送り返すエンジン名など
+message EngineId {
+	string name = 1;
+	string author = 2;
+}
+
+message OptionCheck {
+	bool value = 1;	// default value
+}
+message OptionSpin {
+	int32 value = 1;
+	int32 min_value = 2;
+	int32 max_value = 3;
+}
+message Option {
+	int32 index = 1;
+	string name = 2;
+	oneof option {
+		OptionCheck check = 3;
+		OptionSpin spin = 4;
+	}
+}
+message EngineOption {
+	repeated Option options = 1;
+}
+message OptionValue {
+	int32 index = 1;
+	string name = 2;
+	oneof value {
+		bool flag = 3;
+		int32 number = 4;
+		string str = 5;
+	}
+}
+message SetOption {
+	repeated OptionValue options = 1;
+}
+
+// 引数が必要ないタイプのメッセージ
+enum SingleMessage {
+	UNKNOWN = 0;	// 必要かわからないけど確保しておく
+	ISREADY = 1;
+	READYOK = 2;
+	STOP = 3;	// ponderの終了については整理し直す予定
+	QUIT = 4;
+
+	USI = 5;	// 起動した直後以外にも送っていいと思うので定義
+	NEWGAME = 6;
+}
+
+message Position {
+	string start = 1;
+	repeated uint32 moves = 2;
+}
+message Time {
+	int32 btime = 1;
+	int32 wtime = 2;
+	int32 byoyomi = 3;
+	int32 binc = 4;
+	int32 winc = 5;
+}
+message Go {
+	Position position = 1;
+	bool ponder = 2;	// trueならponderモードで先読みを行う
+	bool hit = 3;	// 予測した相手の指し手が当たったならtrue(ponderhitに相当)
+	bool mate = 4;	// 詰将棋モード
+	oneof time {
+		Time ms = 5;
+		int32 mate_ms = 6;	// 詰将棋モードの制限時間
+		bool infinite = 7;
+	}
+}
+
+message BestMove {
+	uint32 move = 1;
+	uint32 ponder = 2;	// ponderがない場合は0(=MOVE_NONE)にする
+}
+message Info {
+	optional int32 depth = 1;
+	optional int32 seldepth = 2;
+	optional int32 time = 3;
+	optional int32 nodes = 4;
+	
+	message ScoreCp {
+		int32 cp = 1;
+
+		enum Bound {
+			NORMAL = 0;	// boundではない
+			LOWER = 1;
+			UPPER = 2;
+		}
+		Bound bound = 2;
+	}
+	message ScoreMate {
+		oneof step {
+			int32 mate = 1;
+			bool sign = 2;	// 手数がわからないので符号のみを使う
+		}
+	}
+	oneof score {	// 両方が指定されない場合もある
+		ScoreCp cp = 5;
+		ScoreMate mate = 6;
+	}
+
+	optional int32 multipv = 7;
+	optional uint32 curmove = 8;
+	optional int32 hashfull = 9;
+	optional int32 nps = 10;
+
+	message Pv {
+		repeated uint32 pv = 1;
+	}
+	oneof variable {
+		Pv pv = 11;
+		string str = 12;
+	}
+}
+
+message GameOver {
+	enum Result{
+		WIN = 0;
+		LOSE = 1;
+		DRAW = 2;
+	}
+	Result result = 1;
+}
+
+// Engine -> GUI
+message EngineMessage {
+	oneof msg {
+		EngineId id = 1;
+		EngineOption option = 2;
+		SingleMessage sm = 3;
+		BestMove bestmove = 4;
+		Info info = 5;
+	}
+}
+// GUI -> Engine
+message GuiMessage {
+	oneof msg {
+		SingleMessage sm = 1;
+		SetOption option = 2;
+		Go go = 3;	// ponder時のstopとponderhitはgoでカバーする
+		GameOver gameover = 4;
+	}
+}
+
+service UsiProtocol {
+	rpc communicate (stream EngineMessage) returns (stream GuiMessage) {}
+}
