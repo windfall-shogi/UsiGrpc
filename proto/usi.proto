@@ -144,11 +144,11 @@ message GuiMessage {
 	oneof msg {
 		SingleMessage sm = 1;
 		SetOption option = 2;
-		Go go = 3;	// ponder時のstopとponderhitはgoでカバーする
+		Go go = 3;	// ponder時のstopとponderhitはgoでカバーする <- 指向中に手動で停止された場合と区別できないので、普通にstopを送る
 		GameOver gameover = 4;
 	}
 }
 
 service UsiProtocol {
-	rpc communicate (stream EngineMessage) returns (stream GuiMessage) {}
+	rpc Communicate (stream EngineMessage) returns (stream GuiMessage) {}
 }
