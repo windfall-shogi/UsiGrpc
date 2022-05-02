@@ -24,10 +24,12 @@ class UsiProtocolServer final : public usi::UsiProtocol::Service
 public:
   grpc::Status Communicate(grpc::ServerContext *context,
                            grpc::ServerReaderWriter<usi::GuiMessage, usi::EngineMessage> *stream) override {
+    std::cout << "communicate" << std::endl;
     input_thread_ = std::make_unique<std::thread>(std::bind(&UsiProtocolServer::ReadStandardInput, this, stream));
 
     usi::EngineMessage em;
     while (stream->Read(&em)) {
+      std::cout << "read" << std::endl;
       switch (em.msg_case()) {
       case usi::EngineMessage::MsgCase::kId: {
         usi::EngineId id = em.id();
@@ -44,6 +46,7 @@ public:
       default: break;
       }
     }
+    std::cout << "exit" << std::endl;
     if (!exit_flag_) {
       // GUIからのメッセージではなく、エンジンとの接続が切れてループを抜けたと思われる
       // getlineで止まっていると思うので、スレッドを捨てる
@@ -82,6 +85,12 @@ public:
         stream->Write(msg);
       }
     }
+  }
+
+  grpc::Status Sample(grpc::ServerContext* context, const usi::EngineId* engine_id, usi::GameOver *gameover) override {
+    std::cout << engine_id->name() << ", " << engine_id->author() << std::endl;
+    gameover->set_result(usi::GameOver_Result::GameOver_Result_WIN);
+    return grpc::Status::OK;
   }
 
 private:

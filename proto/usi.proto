@@ -151,4 +151,5 @@ message GuiMessage {
 
 service UsiProtocol {
 	rpc Communicate (stream EngineMessage) returns (stream GuiMessage) {}
+	rpc Sample (EngineId) returns (GameOver) {}
 }
