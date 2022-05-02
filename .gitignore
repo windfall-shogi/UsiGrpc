@@ -6,3 +6,7 @@ x64/*
 
 *.pb.cc
 *.pb.h
+
+__pycache__
+*_pb2.py
+*_pb2_grpc.py
