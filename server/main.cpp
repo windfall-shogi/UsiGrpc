@@ -1,8 +1,9 @@
 #pragma warning(push)
-#pragma warning(disable : 4251 26451 26812 26495 6387 6385)
+#pragma warning(disable : 4251 4267 26451 26812 26495 6387 6385)
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
+#include <google/protobuf/empty.pb.h>
 #pragma warning(pop)
 
 #include <condition_variable>
@@ -15,51 +16,15 @@
 #include <thread>
 
 #pragma warning(push)
-#pragma warning(disable : 4251 26451 26812 26495 6387 6385)
+#pragma warning(disable : 4251 4267 26451 26812 26495 6387 6385)
 #include "usi.grpc.pb.h"
 #pragma warning(pop)
 
 class UsiProtocolServer final : public usi::UsiProtocol::Service
 {
 public:
-  grpc::Status Communicate(grpc::ServerContext *context,
-                           grpc::ServerReaderWriter<usi::GuiMessage, usi::EngineMessage> *stream) override {
-    std::cout << "communicate" << std::endl;
-    input_thread_ = std::make_unique<std::thread>(std::bind(&UsiProtocolServer::ReadStandardInput, this, stream));
-
-    usi::EngineMessage em;
-    while (stream->Read(&em)) {
-      std::cout << "read" << std::endl;
-      switch (em.msg_case()) {
-      case usi::EngineMessage::MsgCase::kId: {
-        usi::EngineId id = em.id();
-        std::cout << "id name " << id.name() << std::endl;
-        std::cout << "id author " << id.author() << std::endl;
-      } break;
-      case usi::EngineMessage::MsgCase::kSm: {
-        usi::SingleMessage msg = em.sm();
-        switch (msg) {
-        case usi::ISREADY: std::cout << "isready" << std ::endl; break;
-        default: break;
-        }
-      } break;
-      default: break;
-      }
-    }
-    std::cout << "exit" << std::endl;
-    if (!exit_flag_) {
-      // GUIからのメッセージではなく、エンジンとの接続が切れてループを抜けたと思われる
-      // getlineで止まっていると思うので、スレッドを捨てる
-      input_thread_->detach();
-    } else {
-      input_thread_->join();
-    }
-
-    return grpc::Status::OK;
-  }
-
-  // 標準入力から読むこむ
-  void ReadStandardInput(grpc::ServerReaderWriter<usi::GuiMessage, usi::EngineMessage> *stream) {
+  grpc::Status RecieveMessage(grpc::ServerContext *context, const ::google::protobuf::Empty *empty,
+                              grpc::ServerWriter<usi::GuiMessage> *writer) override {
     std::string cmd, token;
     std::string position;
     while (true) {
@@ -75,28 +40,39 @@ public:
       if (token == "quit") {
         usi::GuiMessage msg;
         msg.set_sm(usi::SingleMessage::QUIT);
-        stream->Write(msg);
+        writer->Write(msg);
 
+        std::unique_lock<std::mutex> lock(mutex_);
         exit_flag_ = true;
+        cv_.notify_one();
         break;
       } else if (token == "usi") {
         usi::GuiMessage msg;
         msg.set_sm(usi::SingleMessage::USI);
-        stream->Write(msg);
+        writer->Write(msg);
       }
     }
+
+    return grpc::Status::OK;
   }
 
-  grpc::Status Sample(grpc::ServerContext* context, const usi::EngineId* engine_id, usi::GameOver *gameover) override {
-    std::cout << engine_id->name() << ", " << engine_id->author() << std::endl;
-    gameover->set_result(usi::GameOver_Result::GameOver_Result_WIN);
+  grpc::Status SendEngineId(grpc::ServerContext *context, const usi::EngineId *engine_id,
+                            ::google::protobuf::Empty *empty) override {
+    std::cout << "id name " << engine_id->name() << std::endl;
+    std::cout << "id author " << engine_id->author() << std::endl;
+
     return grpc::Status::OK;
+  }
+
+  void Shutdown(std::unique_ptr<grpc::Server> &server) {
+    std::unique_lock<std::mutex> lock(mutex_);
+    cv_.wait(lock, [this] { return exit_flag_; });
+    server->Shutdown();
   }
 
 private:
   std::mutex mutex_;
   std::condition_variable cv_;
-  std::unique_ptr<std::thread> input_thread_;
 
   bool exit_flag_ = false;
 };
@@ -110,7 +86,10 @@ void RunServer() {
   builder.RegisterService(&service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   std::cout << "Server listening on " << server_address << std::endl;
+
+  std::thread th(std::bind(&UsiProtocolServer::Shutdown, &service, std::ref(server)));
   server->Wait();
+  th.join();
 }
 
 int main() {

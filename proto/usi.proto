@@ -1,8 +1,10 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 package usi;
 
-// ‹N“®’¼Œã‚ÉGUI‚Ö‘—‚è•Ô‚·ƒGƒ“ƒWƒ“–¼‚È‚Ç
+// èµ·å‹•ç›´å¾Œã«GUIã¸é€ã‚Šè¿”ã™ã‚¨ãƒ³ã‚¸ãƒ³åãªã©
 message EngineId {
 	string name = 1;
 	string author = 2;
@@ -40,15 +42,15 @@ message SetOption {
 	repeated OptionValue options = 1;
 }
 
-// ˆø”‚ª•K—v‚È‚¢ƒ^ƒCƒv‚ÌƒƒbƒZ[ƒW
+// å¼•æ•°ãŒå¿…è¦ãªã„ã‚¿ã‚¤ãƒ—ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
 enum SingleMessage {
-	UNKNOWN = 0;	// •K—v‚©‚í‚©‚ç‚È‚¢‚¯‚ÇŠm•Û‚µ‚Ä‚¨‚­
+	UNKNOWN = 0;	// å¿…è¦ã‹ã‚ã‹ã‚‰ãªã„ã‘ã©ç¢ºä¿ã—ã¦ãŠã
 	ISREADY = 1;
 	READYOK = 2;
-	STOP = 3;	// ponder‚ÌI—¹‚É‚Â‚¢‚Ä‚Í®—‚µ’¼‚·—\’è
+	STOP = 3;	// ponderã®çµ‚äº†ã«ã¤ã„ã¦ã¯æ•´ç†ã—ç›´ã™äºˆå®š
 	QUIT = 4;
 
-	USI = 5;	// ‹N“®‚µ‚½’¼ŒãˆÈŠO‚É‚à‘—‚Á‚Ä‚¢‚¢‚Æv‚¤‚Ì‚Å’è‹`
+	USI = 5;	// èµ·å‹•ã—ãŸç›´å¾Œä»¥å¤–ã«ã‚‚é€ã£ã¦ã„ã„ã¨æ€ã†ã®ã§å®šç¾©
 	NEWGAME = 6;
 }
 
@@ -65,19 +67,19 @@ message Time {
 }
 message Go {
 	Position position = 1;
-	bool ponder = 2;	// true‚È‚çponderƒ‚[ƒh‚Åæ“Ç‚İ‚ğs‚¤
-	bool hit = 3;	// —\‘ª‚µ‚½‘Šè‚Ìw‚µè‚ª“–‚½‚Á‚½‚È‚çtrue(ponderhit‚É‘Š“–)
-	bool mate = 4;	// ‹l«Šûƒ‚[ƒh
+	bool ponder = 2;	// trueãªã‚‰ponderãƒ¢ãƒ¼ãƒ‰ã§å…ˆèª­ã¿ã‚’è¡Œã†
+	bool hit = 3;	// äºˆæ¸¬ã—ãŸç›¸æ‰‹ã®æŒ‡ã—æ‰‹ãŒå½“ãŸã£ãŸãªã‚‰true(ponderhitã«ç›¸å½“)
+	bool mate = 4;	// è©°å°†æ£‹ãƒ¢ãƒ¼ãƒ‰
 	oneof time {
 		Time ms = 5;
-		int32 mate_ms = 6;	// ‹l«Šûƒ‚[ƒh‚Ì§ŒÀŠÔ
+		int32 mate_ms = 6;	// è©°å°†æ£‹ãƒ¢ãƒ¼ãƒ‰ã®åˆ¶é™æ™‚é–“
 		bool infinite = 7;
 	}
 }
 
 message BestMove {
 	uint32 move = 1;
-	uint32 ponder = 2;	// ponder‚ª‚È‚¢ê‡‚Í0(=MOVE_NONE)‚É‚·‚é
+	uint32 ponder = 2;	// ponderãŒãªã„å ´åˆã¯0(=MOVE_NONE)ã«ã™ã‚‹
 }
 message Info {
 	optional int32 depth = 1;
@@ -89,7 +91,7 @@ message Info {
 		int32 cp = 1;
 
 		enum Bound {
-			NORMAL = 0;	// bound‚Å‚Í‚È‚¢
+			NORMAL = 0;	// boundã§ã¯ãªã„
 			LOWER = 1;
 			UPPER = 2;
 		}
@@ -98,10 +100,10 @@ message Info {
 	message ScoreMate {
 		oneof step {
 			int32 mate = 1;
-			bool sign = 2;	// è”‚ª‚í‚©‚ç‚È‚¢‚Ì‚Å•„†‚Ì‚İ‚ğg‚¤
+			bool sign = 2;	// æ‰‹æ•°ãŒã‚ã‹ã‚‰ãªã„ã®ã§ç¬¦å·ã®ã¿ã‚’ä½¿ã†
 		}
 	}
-	oneof score {	// —¼•û‚ªw’è‚³‚ê‚È‚¢ê‡‚à‚ ‚é
+	oneof score {	// ä¸¡æ–¹ãŒæŒ‡å®šã•ã‚Œãªã„å ´åˆã‚‚ã‚ã‚‹
 		ScoreCp cp = 5;
 		ScoreMate mate = 6;
 	}
@@ -144,12 +146,14 @@ message GuiMessage {
 	oneof msg {
 		SingleMessage sm = 1;
 		SetOption option = 2;
-		Go go = 3;	// ponder‚Ìstop‚Æponderhit‚Ígo‚ÅƒJƒo[‚·‚é <- wŒü’†‚Éè“®‚Å’â~‚³‚ê‚½ê‡‚Æ‹æ•Ê‚Å‚«‚È‚¢‚Ì‚ÅA•’Ê‚Éstop‚ğ‘—‚é
+		Go go = 3;	// ponderæ™‚ã®stopã¨ponderhitã¯goã§ã‚«ãƒãƒ¼ã™ã‚‹ <- æŒ‡å‘ä¸­ã«æ‰‹å‹•ã§åœæ­¢ã•ã‚ŒãŸå ´åˆã¨åŒºåˆ¥ã§ããªã„ã®ã§ã€æ™®é€šã«stopã‚’é€ã‚‹
 		GameOver gameover = 4;
 	}
 }
 
 service UsiProtocol {
-	rpc Communicate (stream EngineMessage) returns (stream GuiMessage) {}
-	rpc Sample (EngineId) returns (GameOver) {}
+	// recieving the messages from GUI
+	rpc RecieveMessage (google.protobuf.Empty) returns (stream GuiMessage) {}
+
+	rpc SendEngineId (EngineId) returns (google.protobuf.Empty) {}
 }
