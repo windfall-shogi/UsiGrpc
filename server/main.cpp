@@ -315,6 +315,24 @@ public:
     return grpc::Status::OK;
   }
 
+  grpc::Status SendCheckmate(grpc::ServerContext *context, const usi::Checkmate *checkmate,
+                             ::google::protobuf::Empty *empty) override {
+    std::cout << "checkmate";
+    switch (checkmate->status()) {
+    case usi::Checkmate_Status_NOMATE: std::cout << " nomate"; break;
+    case usi::Checkmate_Status_NOTIMPLEMENTED: std::cout << " notimplemented"; break;
+    case usi::Checkmate_Status_TIMEOUT: std::cout << " timeout"; break;
+    default:
+      for (const auto m : checkmate->moves()) {
+        std::cout << ' ' << USI::move(m);
+      }
+      break;
+    }
+    std::cout << std::endl;
+
+    return grpc::Status::OK;
+  }
+
   void Shutdown(std::unique_ptr<grpc::Server> &server) {
     std::unique_lock<std::mutex> lock(mutex_);
     cv_.wait(lock, [this] { return exit_flag_; });

@@ -137,6 +137,17 @@ message Info {
 	}
 }
 
+message Checkmate {	// go mate に対する応答
+	enum Status {
+		MATE = 0;	// 詰みがある
+		NOMATE = 1;
+		NOTIMPLEMENTED = 2;
+		TIMEOUT = 3;
+	}
+	Status status = 1;
+	repeated uint32 moves = 2;
+}
+
 message GameOver {
 	enum Result{
 		WIN = 0;
@@ -146,16 +157,6 @@ message GameOver {
 	Result result = 1;
 }
 
-// Engine -> GUI
-message EngineMessage {
-	oneof msg {
-		EngineId id = 1;
-		EngineOption option = 2;
-		SingleMessage sm = 3;
-		BestMove bestmove = 4;
-		Info info = 5;
-	}
-}
 // GUI -> Engine
 message GuiMessage {
 	oneof msg {
@@ -169,10 +170,11 @@ message GuiMessage {
 service UsiProtocol {
 	// recieving the messages from GUI
 	rpc RecieveMessage (google.protobuf.Empty) returns (stream GuiMessage) {}
-
+	// Engine -> GUI
 	rpc SendEngineId (EngineId) returns (google.protobuf.Empty) {}
 	rpc SendOption (EngineOption) returns (google.protobuf.Empty) {}
 	rpc SendReady (google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc SendBestMove (BestMove) returns (google.protobuf.Empty) {}
 	rpc SendInfo (Info) returns (google.protobuf.Empty) {}
+	rpc SendCheckmate (Checkmate) returns (google.protobuf.Empty) {}
 }
