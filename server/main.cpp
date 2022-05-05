@@ -250,14 +250,20 @@ public:
         break;
       default: break;
       }
+      std::cout << std::endl;
     }
-    std::cout << std::endl;
 
     return grpc::Status::OK;
   }
 
-  grpc::Status SendReady(grpc::ServerContext *context, const ::google::protobuf::Empty *option,
+  grpc::Status SendUsiOk(grpc::ServerContext *context, const ::google::protobuf::Empty *option,
                          ::google::protobuf::Empty *empty) override {
+    std::cout << "usiok" << std::endl;
+    return grpc::Status::OK;
+  }
+
+  grpc::Status SendReadyOk(grpc::ServerContext *context, const ::google::protobuf::Empty *option,
+                           ::google::protobuf::Empty *empty) override {
     std::cout << "isready" << std::endl;
     return grpc::Status::OK;
   }
