@@ -10,20 +10,38 @@ message EngineId {
 	string author = 2;
 }
 
-message OptionCheck {
-	bool value = 1;	// default value
-}
-message OptionSpin {
-	int32 value = 1;
-	int32 min_value = 2;
-	int32 max_value = 3;
-}
 message Option {
 	int32 index = 1;
 	string name = 2;
+
+	message Check {
+		bool value = 1;	// default value
+	}
+	message Spin {
+		int32 value = 1;
+		int32 min_value = 2;
+		int32 max_value = 3;
+	}
+	message Combo {
+		string value = 1;
+		repeated string candidates = 2;
+	}
+	message Button {
+	}
+	message String {
+		string value = 1;
+	}
+	message Filename {
+		string value = 1;
+	}
+
 	oneof option {
-		OptionCheck check = 3;
-		OptionSpin spin = 4;
+		Check check = 3;
+		Spin spin = 4;
+		Combo combo = 5;
+		Button button = 6;
+		String str = 7;
+		Filename filename = 8;
 	}
 }
 message EngineOption {
@@ -37,9 +55,6 @@ message OptionValue {
 		int32 number = 4;
 		string str = 5;
 	}
-}
-message SetOption {
-	repeated OptionValue options = 1;
 }
 
 // 引数が必要ないタイプのメッセージ
@@ -145,7 +160,7 @@ message EngineMessage {
 message GuiMessage {
 	oneof msg {
 		SingleMessage sm = 1;
-		SetOption option = 2;
+		OptionValue option = 2;
 		Go go = 3;	// ponder時のstopとponderhitはgoでカバーする <- 指向中に手動で停止された場合と区別できないので、普通にstopを送る
 		GameOver gameover = 4;
 	}
@@ -156,4 +171,8 @@ service UsiProtocol {
 	rpc RecieveMessage (google.protobuf.Empty) returns (stream GuiMessage) {}
 
 	rpc SendEngineId (EngineId) returns (google.protobuf.Empty) {}
+	rpc SendOption (EngineOption) returns (google.protobuf.Empty) {}
+	rpc SendReady (google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc SendBestMove (BestMove) returns (google.protobuf.Empty) {}
+	rpc SendInfo (Info) returns (google.protobuf.Empty) {}
 }

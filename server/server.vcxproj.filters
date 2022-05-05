@@ -13,6 +13,72 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ソース ファイル\yaneuraou">
+      <UniqueIdentifier>{524fdbf1-9b43-483a-901a-4a561e55116a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\yaneuraou">
+      <UniqueIdentifier>{df6ce231-0364-4519-b9fc-b17d75b8cbde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\yaneuraou\extra">
+      <UniqueIdentifier>{a89d2a38-fd90-45e6-a7dd-5072725536f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\extra">
+      <UniqueIdentifier>{adbae91b-69f2-4384-8c33-747d308c45e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\yaneuraou\mate">
+      <UniqueIdentifier>{47cd3eb5-30fa-46be-badb-58c788f094c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\mate">
+      <UniqueIdentifier>{0e912d5e-632a-4c7d-ac76-ecbd63ba3153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\yaneuraou\testcmd">
+      <UniqueIdentifier>{67317438-3d5c-4843-963c-ee9830684a88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\testcmd">
+      <UniqueIdentifier>{9999dfba-8d0b-4d41-a12f-621e18b467f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\book">
+      <UniqueIdentifier>{8bd0e1c8-0f86-4fec-b076-bef10c4fa6db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\yaneuraou\book">
+      <UniqueIdentifier>{23273ac6-04b0-44da-9215-6697664cd96d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\learn">
+      <UniqueIdentifier>{4323aaf0-1a38-4bc8-b31e-2808d757b2dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\yaneuraou\learn">
+      <UniqueIdentifier>{51fa194e-b640-443c-a7df-94a84a565b31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\yaneuraou\eval">
+      <UniqueIdentifier>{0c77f4c9-a333-423c-95c9-255c60a43231}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\yaneuraou\eval\nnue">
+      <UniqueIdentifier>{c625c7a5-a152-4bb2-b70a-1d23cab3e592}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\engine">
+      <UniqueIdentifier>{65e7b8d3-79b8-4909-9bb2-7cbe6091e97e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\engine\yaneuraou-engine">
+      <UniqueIdentifier>{7555d4c8-675f-4368-bac5-0a208c29a3fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\yaneuraou\engine">
+      <UniqueIdentifier>{041b6772-904b-4762-a4db-9ab43c42b805}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\yaneuraou\engine\yaneuraou-engine">
+      <UniqueIdentifier>{11c8d2ff-c657-44fd-b96e-b72120a2c8c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\eval">
+      <UniqueIdentifier>{85c62ac2-e1c9-428b-900d-a1be395fc4ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\eval\nnue">
+      <UniqueIdentifier>{11aec73c-0cee-43b7-80a4-be0ff24cec19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\eval\nnue\features">
+      <UniqueIdentifier>{37378c94-c724-41de-a3ff-95e3fd83dbf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\yaneuraou\engine\dlshogi-engine">
+      <UniqueIdentifier>{8c84c603-7c52-42eb-b230-33e4e4b188ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\proto\usi.proto" />
@@ -27,6 +93,87 @@
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="bitboard.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="position.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="types.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="usi.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="usi_option.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="mate\mate.cpp">
+      <Filter>ソース ファイル\yaneuraou\mate</Filter>
+    </ClCompile>
+    <ClCompile Include="testcmd\unit_test.cpp">
+      <Filter>ソース ファイル\yaneuraou\testcmd</Filter>
+    </ClCompile>
+    <ClCompile Include="mate\mate1ply_with_effect.cpp">
+      <Filter>ソース ファイル\yaneuraou\mate</Filter>
+    </ClCompile>
+    <ClCompile Include="mate\mate1ply_without_effect.cpp">
+      <Filter>ソース ファイル\yaneuraou\mate</Filter>
+    </ClCompile>
+    <ClCompile Include="misc.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="movegen.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="thread.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="eval\evaluate_bona_piece.cpp">
+      <Filter>ソース ファイル\yaneuraou\eval</Filter>
+    </ClCompile>
+    <ClCompile Include="eval\nnue\evaluate_nnue.cpp">
+      <Filter>ソース ファイル\yaneuraou\eval\nnue</Filter>
+    </ClCompile>
+    <ClCompile Include="eval\evaluate.cpp">
+      <Filter>ソース ファイル\yaneuraou\eval</Filter>
+    </ClCompile>
+    <ClCompile Include="eval\nnue\features\half_kp.cpp">
+      <Filter>ソース ファイル\yaneuraou\eval\nnue\features</Filter>
+    </ClCompile>
+    <ClCompile Include="tt.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="book\book.cpp">
+      <Filter>ソース ファイル\yaneuraou\book</Filter>
+    </ClCompile>
+    <ClCompile Include="book\apery_book.cpp">
+      <Filter>ソース ファイル\yaneuraou\book</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\yaneuraou-engine\yaneuraou-search.cpp">
+      <Filter>ソース ファイル\yaneuraou\engine\yaneuraou-engine</Filter>
+    </ClCompile>
+    <ClCompile Include="timeman.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="testcmd\benchmark.cpp">
+      <Filter>ソース ファイル\yaneuraou\testcmd</Filter>
+    </ClCompile>
+    <ClCompile Include="movepick.cpp">
+      <Filter>ソース ファイル\yaneuraou</Filter>
+    </ClCompile>
+    <ClCompile Include="testcmd\normal_test_cmd.cpp">
+      <Filter>ソース ファイル\yaneuraou\testcmd</Filter>
+    </ClCompile>
+    <ClCompile Include="testcmd\mate_test_cmd.cpp">
+      <Filter>ソース ファイル\yaneuraou\testcmd</Filter>
+    </ClCompile>
+    <ClCompile Include="mate\mate_solver.cpp">
+      <Filter>ソース ファイル\yaneuraou\mate</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\dlshogi-engine\yo_cluster.cpp">
+      <Filter>ソース ファイル\yaneuraou\engine\dlshogi-engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="usi.grpc.pb.h">
@@ -34,6 +181,126 @@
     </ClInclude>
     <ClInclude Include="usi.pb.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="bitboard.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="evaluate.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="position.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="extra\bitop.h">
+      <Filter>ヘッダー ファイル\yaneuraou\extra</Filter>
+    </ClInclude>
+    <ClInclude Include="extra\macros.h">
+      <Filter>ヘッダー ファイル\yaneuraou\extra</Filter>
+    </ClInclude>
+    <ClInclude Include="extra\key128.h">
+      <Filter>ヘッダー ファイル\yaneuraou\extra</Filter>
+    </ClInclude>
+    <ClInclude Include="extra\long_effect.h">
+      <Filter>ヘッダー ファイル\yaneuraou\extra</Filter>
+    </ClInclude>
+    <ClInclude Include="mate\mate.h">
+      <Filter>ヘッダー ファイル\yaneuraou\mate</Filter>
+    </ClInclude>
+    <ClInclude Include="mate\mate_dfpn.hpp">
+      <Filter>ヘッダー ファイル\yaneuraou\mate</Filter>
+    </ClInclude>
+    <ClInclude Include="mate\mate_move_picker.h">
+      <Filter>ヘッダー ファイル\yaneuraou\mate</Filter>
+    </ClInclude>
+    <ClInclude Include="testcmd\unit_test.h">
+      <Filter>ヘッダー ファイル\yaneuraou\testcmd</Filter>
+    </ClInclude>
+    <ClInclude Include="misc.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="usi.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="search.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="thread.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="tt.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="movepick.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_win32_osx.h">
+      <Filter>ヘッダー ファイル\yaneuraou</Filter>
+    </ClInclude>
+    <ClInclude Include="book\apery_book.h">
+      <Filter>ヘッダー ファイル\yaneuraou\book</Filter>
+    </ClInclude>
+    <ClInclude Include="book\book.h">
+      <Filter>ヘッダー ファイル\yaneuraou\book</Filter>
+    </ClInclude>
+    <ClInclude Include="learn\half_float.h">
+      <Filter>ヘッダー ファイル\yaneuraou\learn</Filter>
+    </ClInclude>
+    <ClInclude Include="learn\learn.h">
+      <Filter>ヘッダー ファイル\yaneuraou\learn</Filter>
+    </ClInclude>
+    <ClInclude Include="learn\learning_tools.h">
+      <Filter>ヘッダー ファイル\yaneuraou\learn</Filter>
+    </ClInclude>
+    <ClInclude Include="learn\multi_think.h">
+      <Filter>ヘッダー ファイル\yaneuraou\learn</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\nnue\evaluate_nnue.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval\nnue</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\nnue\evaluate_nnue_learner.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval\nnue</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\nnue\nnue_accumulator.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval\nnue</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\nnue\nnue_architecture.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval\nnue</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\nnue\nnue_common.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval\nnue</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\nnue\nnue_feature_transformer.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval\nnue</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\nnue\nnue_test_command.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval\nnue</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\evalhash.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\evalsum.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\evaluate_common.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\evaluate_io.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval</Filter>
+    </ClInclude>
+    <ClInclude Include="eval\evaluate_mir_inv_tools.h">
+      <Filter>ヘッダー ファイル\yaneuraou\eval</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\yaneuraou-engine\yaneuraou-param.h">
+      <Filter>ヘッダー ファイル\yaneuraou\engine\yaneuraou-engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\yaneuraou-engine\yaneuraou-param-common.h">
+      <Filter>ヘッダー ファイル\yaneuraou\engine\yaneuraou-engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

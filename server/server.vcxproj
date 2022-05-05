@@ -114,9 +114,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;YANEURAOU_ENGINE_NNUE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -153,12 +154,79 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="bitboard.cpp" />
+    <ClCompile Include="book\apery_book.cpp" />
+    <ClCompile Include="book\book.cpp" />
+    <ClCompile Include="engine\dlshogi-engine\yo_cluster.cpp" />
+    <ClCompile Include="engine\yaneuraou-engine\yaneuraou-search.cpp" />
+    <ClCompile Include="eval\evaluate.cpp" />
+    <ClCompile Include="eval\evaluate_bona_piece.cpp" />
+    <ClCompile Include="eval\nnue\evaluate_nnue.cpp" />
+    <ClCompile Include="eval\nnue\features\half_kp.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mate\mate.cpp" />
+    <ClCompile Include="mate\mate1ply_without_effect.cpp" />
+    <ClCompile Include="mate\mate1ply_with_effect.cpp" />
+    <ClCompile Include="mate\mate_solver.cpp" />
+    <ClCompile Include="misc.cpp" />
+    <ClCompile Include="movegen.cpp" />
+    <ClCompile Include="movepick.cpp" />
+    <ClCompile Include="position.cpp" />
+    <ClCompile Include="testcmd\benchmark.cpp" />
+    <ClCompile Include="testcmd\mate_test_cmd.cpp" />
+    <ClCompile Include="testcmd\normal_test_cmd.cpp" />
+    <ClCompile Include="testcmd\unit_test.cpp" />
+    <ClCompile Include="thread.cpp" />
+    <ClCompile Include="timeman.cpp" />
+    <ClCompile Include="tt.cpp" />
+    <ClCompile Include="types.cpp" />
+    <ClCompile Include="usi.cpp" />
     <ClCompile Include="usi.grpc.pb.cc" />
     <ClCompile Include="usi.pb.cc" />
+    <ClCompile Include="usi_option.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bitboard.h" />
+    <ClInclude Include="book\apery_book.h" />
+    <ClInclude Include="book\book.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="engine\yaneuraou-engine\yaneuraou-param-common.h" />
+    <ClInclude Include="engine\yaneuraou-engine\yaneuraou-param.h" />
+    <ClInclude Include="evaluate.h" />
+    <ClInclude Include="eval\evalhash.h" />
+    <ClInclude Include="eval\evalsum.h" />
+    <ClInclude Include="eval\evaluate_common.h" />
+    <ClInclude Include="eval\evaluate_io.h" />
+    <ClInclude Include="eval\evaluate_mir_inv_tools.h" />
+    <ClInclude Include="eval\nnue\evaluate_nnue.h" />
+    <ClInclude Include="eval\nnue\evaluate_nnue_learner.h" />
+    <ClInclude Include="eval\nnue\nnue_accumulator.h" />
+    <ClInclude Include="eval\nnue\nnue_architecture.h" />
+    <ClInclude Include="eval\nnue\nnue_common.h" />
+    <ClInclude Include="eval\nnue\nnue_feature_transformer.h" />
+    <ClInclude Include="eval\nnue\nnue_test_command.h" />
+    <ClInclude Include="extra\bitop.h" />
+    <ClInclude Include="extra\key128.h" />
+    <ClInclude Include="extra\long_effect.h" />
+    <ClInclude Include="extra\macros.h" />
+    <ClInclude Include="learn\half_float.h" />
+    <ClInclude Include="learn\learn.h" />
+    <ClInclude Include="learn\learning_tools.h" />
+    <ClInclude Include="learn\multi_think.h" />
+    <ClInclude Include="mate\mate.h" />
+    <ClInclude Include="mate\mate_dfpn.hpp" />
+    <ClInclude Include="mate\mate_move_picker.h" />
+    <ClInclude Include="misc.h" />
+    <ClInclude Include="movepick.h" />
+    <ClInclude Include="position.h" />
+    <ClInclude Include="search.h" />
+    <ClInclude Include="testcmd\unit_test.h" />
+    <ClInclude Include="thread.h" />
+    <ClInclude Include="thread_win32_osx.h" />
+    <ClInclude Include="tt.h" />
+    <ClInclude Include="types.h" />
     <ClInclude Include="usi.grpc.pb.h" />
+    <ClInclude Include="usi.h" />
     <ClInclude Include="usi.pb.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
