@@ -25,6 +25,124 @@
 #include "thread.h"
 #include "usi.h"
 
+
+
+void ParsePosition(std::istringstream &iss, Position &position, StateListPtr &states, std::vector<Move> &moves,
+                   std::string &sfen_start) {
+  std::string sfen, token;
+  iss >> token;
+  if (token == "startpos") {
+    sfen = SFEN_HIRATE;
+    iss >> token; // "moves" を消費
+  } else {
+    // "sfen" から始まっても、始まらなくても良いようにする
+    if (token != "sfen") {
+      sfen = token + " ";
+    }
+    while (iss >> token && token != "moves") {
+      sfen += token + " ";
+    }
+  }
+  // 開始局面を保存
+  sfen_start = sfen;
+
+  position.set(sfen, &states->back(), Threads.main());
+  moves.clear();
+  Move m;
+  while (iss >> token && (m = USI::to_move(position, token)) != MOVE_NONE) {
+    states->emplace_back();
+    if (m == MOVE_NULL) {
+      position.do_null_move(states->back());
+    } else {
+      position.do_move(m, states->back());
+    }
+    moves.emplace_back(m);
+  }
+  // やねうら王だとこの後にスレッド関係の処理が少しある
+}
+
+void Go(std::istringstream &iss, std::vector<Move> &moves, std::string &sfen_start,
+        grpc::ServerWriter<usi::GuiMessage> *writer) {
+  usi::Go go;
+  usi::Position position;
+  position.set_start(sfen_start);
+  for (const auto &m : moves) {
+    position.add_moves(static_cast<uint32_t>(m));
+  }
+  go.set_allocated_position(&position);
+  usi::Time time;
+  bool time_flag = false;
+
+  std::string token;
+  while (iss >> token) {
+    if (token == "ponder") {
+      go.set_ponder(true);
+    } else if (token == "mate") {
+      go.set_mate(true);
+      iss >> token;
+      if (token == "infinite") {
+        go.set_infinite(true);
+      } else {
+        go.set_mate_ms(std::stoi(token));
+      }
+    } else if (token == "btime") {
+      iss >> token;
+      time.set_btime(std::stoi(token));
+      time_flag = true;
+    } else if (token == "wtime") {
+      iss >> token;
+      time.set_wtime(std::stoi(token));
+      time_flag = true;
+    } else if (token == "byoyomi") {
+      iss >> token;
+      time.set_byoyomi(std::stoi(token));
+      time_flag = true;
+    } else if (token == "binc") {
+      iss >> token;
+      time.set_binc(std::stoi(token));
+      time_flag = true;
+    } else if (token == "winc") {
+      iss >> token;
+      time.set_winc(std::stoi(token));
+      time_flag = true;
+    } else if (token == "infinite") {
+      go.set_infinite(true);
+    }
+  }
+  if (time_flag) {
+    go.set_allocated_ms(&time);
+  }
+
+  usi::GuiMessage msg;
+  msg.set_allocated_go(&go);
+  writer->Write(msg);
+}
+
+void OutputCp(const usi::Info_ScoreCp &score) {
+  std::cout << " cp " << score.cp();
+  switch (score.bound()) {
+  case usi::Info::ScoreCp::LOWER: std::cout << " lowerbound"; break;
+  case usi::Info::ScoreCp::UPPER: std::cout << " upperbound"; break;
+  default: break;
+  }
+}
+void OutputMate(const usi::Info_ScoreMate &score) {
+  std::cout << " mate ";
+  switch (score.step_case()) {
+  case usi::Info::ScoreMate::kMate: std::cout << score.mate(); break;
+  case usi::Info::ScoreMate::kSign: std::cout << (score.sign() ? '+' : '-'); break;
+  default: break;
+  }
+}
+void OutputScore(const usi::Info *info) {
+  std::cout << " score";
+  switch (info->score_case()) {
+  case usi::Info::ScoreCase::kCp: OutputCp(info->cp()); break;
+  case usi::Info::ScoreCase::kMate: OutputMate(info->mate()); break;
+  default: break;
+  }
+}
+
 class UsiProtocolServer final : public usi::UsiProtocol::Service
 {
 public:
@@ -61,66 +179,36 @@ public:
         msg.set_sm(usi::SingleMessage::USI);
         writer->Write(msg);
       } else if (token == "setoption") {
-        const std::regex re("setoption (?:name )? (\\.+)(?: value )?(\\.+)");
-        std::smatch m;
-        if (std::regex_search(cmd, m, re)) {
-          std::string name = m.str(1);
-          std::string value = m.size() == 3 ? m.str(2) : "";
-
-          const auto &ot = option_types_.at(name);
-          usi::OptionValue o;
-          o.set_index(ot.index);
-          o.set_name(name);
-          switch (ot.type) {
-          case OptionType::CHECK: 
-              o.set_flag(value == "true");
-              break;
-          case OptionType::SPIN: o.set_number(std::stoi(value)); break;
-          case OptionType::BUTTON: break;
-          default: o.set_str(value);
-              break;
-          }
-          usi::GuiMessage msg;
-          msg.set_allocated_option(&o);
-
-          writer->Write(msg);
-        }
+        SetOption(cmd, writer);
       } else if (token == "position") {
-        std::string sfen;
-        iss >> token;
-        if (token == "startpos") {
-          sfen = SFEN_HIRATE;
-          iss >> token; // "moves" を消費
-        } else {
-          // "sfen" から始まっても、始まらなくても良いようにする
-          if (token != "sfen") {
-            sfen = token + " ";
-          }
-          while (iss >> token && token != "moves") {
-            sfen += token + " ";
-          }
-        }
-        // 開始局面を保存
-        sfen_start = sfen;
-
-        position.set(sfen, &states->back(), Threads.main());
-        moves.clear();
-        Move m;
-        while (iss >> token && (m = USI::to_move(position, token)) != MOVE_NONE) {
-          states->emplace_back();
-          if (m == MOVE_NULL) {
-            position.do_null_move(states->back());
-          } else {
-            position.do_move(m, states->back());
-          }
-          moves.emplace_back(m);
-        }
-        // やねうら王だとこの後にスレッド関係の処理が少しある
-
+        ParsePosition(iss, position, states, moves, sfen_start);
         // goの時のデータに局面の情報を含める
       } else if (token == "go") {
+        Go(iss, moves, sfen_start, writer);
       } else if (token == "ponderhit") {
+        states->emplace_back();
+        if (ponder_move_ == MOVE_NULL) {
+          position.do_null_move(states->back());
+        } else {
+          position.do_move(ponder_move_, states->back());
+        }
+        moves.emplace_back(ponder_move_);
+
+        usi::Go go;
+        usi::Position position;
+        position.set_start(sfen_start);
+        for (const auto &m : moves) {
+          position.add_moves(static_cast<uint32_t>(m));
+        }
+        go.set_allocated_position(&position);
+
+        usi::GuiMessage msg;
+        msg.set_allocated_go(&go);
+        writer->Write(msg);
       } else if (token == "stop") {
+          usi::GuiMessage msg;
+          msg.set_sm(usi::SingleMessage::STOP);
+          writer->Write(msg);
       }
     }
 
@@ -176,11 +264,54 @@ public:
 
   grpc::Status SendBestMove(grpc::ServerContext *context, const usi::BestMove *best_move,
                             ::google::protobuf::Empty *empty) override {
+    std::cout << "bestmove " << USI::move(static_cast<Move>(best_move->move()));
+    if (best_move->ponder() != 0) {
+      std::cout << " ponder " << USI::move(static_cast<Move>(best_move->ponder()));
+    }
+    std::cout << std::endl;
     return grpc::Status::OK;
   }
 
   grpc::Status SendInfo(grpc::ServerContext *context, const usi::Info *info,
                         ::google::protobuf::Empty *empty) override {
+    std::cout << "info";
+    if (info->has_depth()) {
+      std::cout << " depth " << info->depth();
+    }
+    if (info->has_seldepth()) {
+      std::cout << " seldepth " << info->seldepth();
+    }
+    if (info->has_time()) {
+      std::cout << " time " << info->time();
+    }
+    if (info->has_nodes()) {
+      std::cout << " nodes " << info->nodes();
+    }
+    if (info->has_multipv()) {
+      std::cout << " multipv " << info->multipv();
+    }
+    OutputScore(info);
+    if (info->has_curmove()) {
+      std::cout << " curmove " << USI::move(info->curmove());
+    }
+    if (info->has_hashfull()) {
+      std::cout << " hashfull " << info->hashfull();
+    }
+    if (info->has_nps()) {
+      std::cout << " nps " << info->nps();
+    }
+    switch (info->variable_case()) {
+    case usi::Info::VariableCase::kPv:
+      std::cout << " pv";
+      for (const auto m : info->pv().pv()) {
+        std::cout << ' ' << USI::move(m);
+      }
+      break;
+    case usi::Info::VariableCase::kStr: std::cout << " string " << info->str(); break;
+    default: break;
+    }
+    std::cout << std::endl;
+
     return grpc::Status::OK;
   }
 
@@ -191,6 +322,30 @@ public:
   }
 
 private:
+  void SetOption(const std::string &cmd, grpc::ServerWriter<usi::GuiMessage> *writer) {
+    const std::regex re("setoption (?:name )? (\\.+)(?: value )?(\\.+)");
+    std::smatch m;
+    if (std::regex_search(cmd, m, re)) {
+      std::string name = m.str(1);
+      std::string value = m.size() == 3 ? m.str(2) : "";
+
+      const auto &ot = option_types_.at(name);
+      usi::OptionValue o;
+      o.set_index(ot.index);
+      o.set_name(name);
+      switch (ot.type) {
+      case OptionType::CHECK: o.set_flag(value == "true"); break;
+      case OptionType::SPIN: o.set_number(std::stoi(value)); break;
+      case OptionType::BUTTON: break;
+      default: o.set_str(value); break;
+      }
+      usi::GuiMessage msg;
+      msg.set_allocated_option(&o);
+
+      writer->Write(msg);
+    }
+  }
+
   std::mutex mutex_;
   std::condition_variable cv_;
 
@@ -204,6 +359,8 @@ private:
     OptionType type;
   };
   std::unordered_map<std::string, Option> option_types_;
+
+  Move ponder_move_;
 };
 
 void RunServer() {
