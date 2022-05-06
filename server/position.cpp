@@ -307,7 +307,7 @@ void Position::set(std::string sfen , StateInfo* si , Thread* th)
 	st->materialValue = Eval::material(*this);
 #endif
 
-	Eval::compute_eval(*this);
+	//Eval::compute_eval(*this);
 
 	// --- 入玉の駒点の設定
 

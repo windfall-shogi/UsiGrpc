@@ -52,10 +52,12 @@ def message_loop():
             elif msg.WhichOneof('msg') == 'option':
                 pass
             elif msg.WhichOneof('msg') == 'go':
-                sfen = 'sfen ' + msg.go.position.start + ' moves'
-                board.set(sfen)
+                sfen = msg.go.position.start + ' moves'
+                board.set_sfen(sfen)
+                print(board)
                 for m in msg.go.position.moves:
-                    board.push_psv(m)
+                    board.push_psv(m & 0xFFFF)
+                print(board)
 
                 if msg.go.ponder:
                     continue
@@ -78,21 +80,32 @@ def best_move(board, stub):
         ponder = get_move(board, push=False)
     else:
         ponder = (2 << 7) + 2
-    m = usi_pb2.BestMove(move=best_move, ponder=ponder)
+    m = usi_pb2.BestMove(move=move, ponder=ponder)
     stub.SendBestMove(m)
 
     return ponder
 
 
 def get_move(board, push):
-    legal_moves = list(board.legal_moves)
-    if len(legal_moves):
-        best_move = (2 << 7) + 2    # resign
+    legal_moves = [m for m in board.legal_moves]
+    print(len(legal_moves))
+    if len(legal_moves) == 0:
+        move = (2 << 7) + 2    # resign
     else:
-        best_move = cshogi.move_to_psv(legal_moves[0] & 0xFF)
+        move = cshogi.move16_to_psv(legal_moves[0] & 0xFFFF)
+        if cshogi.move_is_drop(legal_moves[0]):
+            tmp = (move >> 7) & 0x3F
+            turn = board.turn
+            tmp |= turn << 4
+            move |= tmp << 16
+        else:
+            piece = board.piece(cshogi.move_from(legal_moves[0]))
+            promotion = cshogi.move_is_promotion(legal_moves[0])
+            piece |= promotion << 3
+            move |= piece << 16
         if push:
             board.push(legal_moves[0])
-    return best_move
+    return move
 
 
 def main():

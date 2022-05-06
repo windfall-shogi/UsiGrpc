@@ -25,8 +25,6 @@
 #include "thread.h"
 #include "usi.h"
 
-
-
 void ParsePosition(std::istringstream &iss, Position &position, StateListPtr &states, std::vector<Move> &moves,
                    std::string &sfen_start) {
   std::string sfen, token;
@@ -44,7 +42,8 @@ void ParsePosition(std::istringstream &iss, Position &position, StateListPtr &st
     }
   }
   // 開始局面を保存
-  sfen_start = sfen;
+  // 最後の空白を削除
+  sfen_start = sfen.substr(0, sfen.size() - 1);
 
   position.set(sfen, &states->back(), Threads.main());
   moves.clear();
@@ -67,7 +66,7 @@ void Go(std::istringstream &iss, std::vector<Move> &moves, std::string &sfen_sta
   usi::Position *position = new usi::Position();
   position->set_start(sfen_start);
   for (const auto &m : moves) {
-    position->add_moves(static_cast<uint32_t>(m));
+    position->add_moves(m);
   }
   go->set_allocated_position(position);
   usi::Time* time = nullptr;
@@ -211,7 +210,7 @@ public:
         usi::Position* position = new usi::Position();
         position->set_start(sfen_start);
         for (const auto &m : moves) {
-          position->add_moves(static_cast<uint32_t>(m));
+          position->add_moves(m);
         }
         go->set_allocated_position(position);
 
@@ -431,6 +430,18 @@ void RunServer() {
 }
 
 int main() {
+  USI::init(Options);
+  Bitboards::init();
+  Position::init();
+  Search::init();
+
+  // エンジンオプションの"Threads"があるとは限らないので…。
+  size_t thread_num = Options.count("Threads") ? (size_t)Options["Threads"] : 1;
+  Threads.set(thread_num);
+
+  // Search::clear();
+  Eval::init();
+
   RunServer();
 
   return 0;
