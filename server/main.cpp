@@ -63,58 +63,67 @@ void ParsePosition(std::istringstream &iss, Position &position, StateListPtr &st
 
 void Go(std::istringstream &iss, std::vector<Move> &moves, std::string &sfen_start,
         grpc::ServerWriter<usi::GuiMessage> *writer) {
-  usi::Go go;
-  usi::Position position;
-  position.set_start(sfen_start);
+  usi::Go *go = new usi::Go();
+  usi::Position *position = new usi::Position();
+  position->set_start(sfen_start);
   for (const auto &m : moves) {
-    position.add_moves(static_cast<uint32_t>(m));
+    position->add_moves(static_cast<uint32_t>(m));
   }
-  go.set_allocated_position(&position);
-  usi::Time time;
-  bool time_flag = false;
+  go->set_allocated_position(position);
+  usi::Time* time = nullptr;
 
   std::string token;
   while (iss >> token) {
     if (token == "ponder") {
-      go.set_ponder(true);
+      go->set_ponder(true);
     } else if (token == "mate") {
-      go.set_mate(true);
+      go->set_mate(true);
       iss >> token;
       if (token == "infinite") {
-        go.set_infinite(true);
+        go->set_infinite(true);
       } else {
-        go.set_mate_ms(std::stoi(token));
+        go->set_mate_ms(std::stoi(token));
       }
     } else if (token == "btime") {
       iss >> token;
-      time.set_btime(std::stoi(token));
-      time_flag = true;
+      if (!time) {
+          time = new usi::Time();
+      }
+      time->set_btime(std::stoi(token));
     } else if (token == "wtime") {
       iss >> token;
-      time.set_wtime(std::stoi(token));
-      time_flag = true;
+      if (!time) {
+          time = new usi::Time();
+      }
+      time->set_wtime(std::stoi(token));
     } else if (token == "byoyomi") {
       iss >> token;
-      time.set_byoyomi(std::stoi(token));
-      time_flag = true;
+      if (!time) {
+          time = new usi::Time();
+      }
+      time->set_byoyomi(std::stoi(token));
     } else if (token == "binc") {
       iss >> token;
-      time.set_binc(std::stoi(token));
-      time_flag = true;
+      if (!time) {
+          time = new usi::Time();
+      }
+      time->set_binc(std::stoi(token));
     } else if (token == "winc") {
       iss >> token;
-      time.set_winc(std::stoi(token));
-      time_flag = true;
+      if (!time) {
+          time = new usi::Time();
+      }
+      time->set_winc(std::stoi(token));
     } else if (token == "infinite") {
-      go.set_infinite(true);
+      go->set_infinite(true);
     }
   }
-  if (time_flag) {
-    go.set_allocated_ms(&time);
+  if (time) {
+    go->set_allocated_ms(time);
   }
 
   usi::GuiMessage msg;
-  msg.set_allocated_go(&go);
+  msg.set_allocated_go(go);
   writer->Write(msg);
 }
 
@@ -180,6 +189,10 @@ public:
         writer->Write(msg);
       } else if (token == "setoption") {
         SetOption(cmd, writer);
+      } else if (token == "isready") {
+        usi::GuiMessage msg;
+        msg.set_sm(usi::SingleMessage::ISREADY);
+        writer->Write(msg);
       } else if (token == "position") {
         ParsePosition(iss, position, states, moves, sfen_start);
         // go‚ÌŽž‚Ìƒf[ƒ^‚É‹Ç–Ê‚Ìî•ñ‚ðŠÜ‚ß‚é
@@ -194,16 +207,16 @@ public:
         }
         moves.emplace_back(ponder_move_);
 
-        usi::Go go;
-        usi::Position position;
-        position.set_start(sfen_start);
+        usi::Go* go = new usi::Go();
+        usi::Position* position = new usi::Position();
+        position->set_start(sfen_start);
         for (const auto &m : moves) {
-          position.add_moves(static_cast<uint32_t>(m));
+          position->add_moves(static_cast<uint32_t>(m));
         }
-        go.set_allocated_position(&position);
+        go->set_allocated_position(position);
 
         usi::GuiMessage msg;
-        msg.set_allocated_go(&go);
+        msg.set_allocated_go(go);
         writer->Write(msg);
       } else if (token == "stop") {
           usi::GuiMessage msg;
@@ -227,30 +240,45 @@ public:
                           ::google::protobuf::Empty *empty) override {
     const int size = engine_option->options_size();
     for (int i = 0; i < size; ++i) {
+      Option o;
+      o.index = i;
+
       const auto &option = engine_option->options(i);
       std::cout << "option name " << option.name() << " type ";
       switch (option.option_case()) {
-      case usi::Option::kCheck: std::cout << "check default " << (option.check().value() ? "true" : "false"); break;
+      case usi::Option::kCheck:
+        std::cout << "check default " << (option.check().value() ? "true" : "false");
+        o.type = OptionType::CHECK;
+        break;
       case usi::Option::kSpin:
         std::cout << "spin default " << option.spin().value() << " min " << option.spin().min_value() << " max "
                   << option.spin().max_value();
+        o.type = OptionType::SPIN;
         break;
       case usi::Option::kCombo:
         std::cout << "combo default " << (option.combo().value() == "" ? "<empty>" : option.combo().value());
         for (const auto &s : option.combo().candidates()) {
           std::cout << " var " << s;
         }
+        o.type = OptionType::COMBO;
         break;
-      case usi::Option::kButton: std::cout << "button"; break;
+      case usi::Option::kButton:
+        std::cout << "button";
+        o.type = OptionType::BUTTON;
+        break;
       case usi::Option::kStr:
         std::cout << "string default " << (option.str().value() == "" ? "<empty>" : option.str().value());
+        o.type = OptionType::STRING;
         break;
       case usi::Option::kFilename:
         std::cout << "filename default " << (option.filename().value() == "" ? "<empty>" : option.filename().value());
+        o.type = OptionType::FILENAME;
         break;
       default: break;
       }
       std::cout << std::endl;
+
+      option_types_[option.name()] = o;
     }
 
     return grpc::Status::OK;
@@ -347,24 +375,24 @@ public:
 
 private:
   void SetOption(const std::string &cmd, grpc::ServerWriter<usi::GuiMessage> *writer) {
-    const std::regex re("setoption (?:name )? (\\.+)(?: value )?(\\.+)");
+    const std::regex re("setoption name (\\S+)(?: value )?(.*)");
     std::smatch m;
     if (std::regex_search(cmd, m, re)) {
       std::string name = m.str(1);
       std::string value = m.size() == 3 ? m.str(2) : "";
 
       const auto &ot = option_types_.at(name);
-      usi::OptionValue o;
-      o.set_index(ot.index);
-      o.set_name(name);
+      usi::OptionValue* o = new usi::OptionValue();
+      o->set_index(ot.index);
+      o->set_name(name);
       switch (ot.type) {
-      case OptionType::CHECK: o.set_flag(value == "true"); break;
-      case OptionType::SPIN: o.set_number(std::stoi(value)); break;
+      case OptionType::CHECK: o->set_flag(value == "true"); break;
+      case OptionType::SPIN: o->set_number(std::stoi(value)); break;
       case OptionType::BUTTON: break;
-      default: o.set_str(value); break;
+      default: o->set_str(value); break;
       }
       usi::GuiMessage msg;
-      msg.set_allocated_option(&o);
+      msg.set_allocated_option(o);
 
       writer->Write(msg);
     }
